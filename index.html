@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BBB Tank Services – Estimator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap');
+:root{
+  --black:#0d1117;--steel:#161b22;--panel:#1c2128;--panel2:#21262d;
+  --border:#30363d;--teal:#00b5a5;--teal2:#008f82;
+  --text:#e6edf3;--muted:#8b949e;--green:#00b5a5;--red:#f85149;--blue:#58a6ff;
+  --input:#0d1117;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:var(--black);color:var(--text);font-size:13px;min-height:100vh}
+header{background:var(--steel);border-bottom:2px solid var(--teal);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-bbb{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:var(--teal);letter-spacing:3px}
+.logo-divider{width:2px;height:32px;background:var(--border)}
+.logo-text .co{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:var(--text)}
+.logo-text .tag{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.hbtns{display:flex;gap:8px}
+.btn{font-family:'Barlow',sans-serif;font-weight:600;font-size:12px;letter-spacing:.4px;padding:7px 16px;border-radius:5px;border:none;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-teal{background:var(--teal);color:#000}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);opacity:1}
+.btn-sm{padding:4px 10px;font-size:11px}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--steel);padding:0 28px}
+.tab{padding:10px 18px;font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);transition:color .15s,border-color .15s;text-transform:uppercase}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.page{display:none;padding:20px 28px 60px}
+.page.active{display:block}
+.two-col{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:6px;margin-bottom:16px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border)}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal)}
+.card-body{padding:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.mb{margin-bottom:12px}
+label.fld{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;background:var(--input);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;padding:7px 9px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+select option{background:var(--panel)}
+textarea{resize:vertical;min-height:56px}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:5px 6px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:4px 3px;vertical-align:middle;border-bottom:1px solid #1c2128}
+.tbl tr:last-child td{border-bottom:none}
+.tbl input,.tbl select{padding:5px 7px;font-size:12px}
+.tbl .mono{font-family:'Roboto Mono',monospace;font-size:12px;text-align:right;padding-right:6px;white-space:nowrap}
+.tbl .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 5px;transition:color .15s;line-height:1}
+.tbl .del:hover{color:var(--red)}
+.add-row{margin-top:10px;width:100%;background:none;border:1px dashed var(--border);border-radius:4px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:.8px;padding:6px;cursor:pointer;transition:all .15s}
+.add-row:hover{border-color:var(--teal);color:var(--teal)}
+.summary{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:18px;position:sticky;top:80px}
+.sum-ttl{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px}
+.sum-row .lbl{color:var(--muted)}
+.sum-row .val{font-family:'Roboto Mono',monospace;font-size:12px}
+.sum-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.sum-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:10px;border-top:2px solid var(--teal)}
+.sum-total .lbl{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px}
+.sum-total .val{font-family:'Roboto Mono',monospace;font-size:20px;color:var(--teal)}
+.margin-wrap{margin-top:14px}
+.margin-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px}
+.margin-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.margin-fill{height:100%;border-radius:3px;transition:width .3s,background .3s}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;background:#003d38;color:#00e5d4}
+.cat-search{margin-bottom:10px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:400px;overflow-y:auto;padding:4px}
+.cat-item{background:var(--input);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:8px 10px;cursor:pointer;transition:border-color .15s}
+.cat-item:hover{border-color:var(--teal);background:var(--panel)}
+.cat-item .ci-name{font-size:12px;font-weight:600;color:var(--text)}
+.cat-item .ci-price{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--teal);margin-top:2px}
+.cat-item .ci-unit{font-size:10px;color:var(--muted)}
+.mk-grid{display:grid;grid-template-columns:1fr 80px;gap:6px;align-items:center;font-size:11px;row-gap:7px}
+.mk-grid span{color:var(--muted)}
+.mk-grid input{padding:4px 7px;font-size:12px}
+.notes-area{width:100%;background:var(--input);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;padding:8px;outline:none;resize:vertical;min-height:80px}
+.notes-area:focus{border-color:var(--teal)}
+.section-hdr{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--border)}
+@media print{
+  body{background:#fff;color:#000}
+  header{background:#fff;border-bottom:2px solid #000;position:static}
+  .logo-bbb{color:#008f82}
+  .hbtns,.tabs,.add-row,.del,.no-print{display:none!important}
+  .card{background:#fff;border:1px solid #ccc;page-break-inside:avoid}
+  .card-hdr{border-bottom:1px solid #ccc}
+  .card-title{color:#008f82}
+  .page{display:block!important;padding:8px 0}
+  .two-col{grid-template-columns:1fr 240px}
+  .summary{background:#f5f5f5;border:1px solid #ccc;position:static}
+  .sum-total .val{color:#008f82}
+  input,select,textarea{background:transparent;border:none;padding:0;color:#000}
+  .tbl th{color:#555}
+  .tbl td{border-bottom:1px solid #eee}
+  .margin-wrap,.cat-grid,.no-print{display:none}
+  .sum-row .lbl,.mk-grid span{color:#555}
+  label.fld{color:#555}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-bbb">BBB</div>
+    <div class="logo-divider"></div>
+    <div class="logo-text">
+      <div class="co">Tank Services, LLC</div>
+      <div class="tag">Job Estimator &nbsp;·&nbsp; Baytown &amp; Corpus Christi</div>
+    </div>
+  </div>
+  <div class="hbtns">
+    <button class="btn btn-ghost" onclick="newEstimate()">New Estimate</button>
+    <button class="btn btn-teal" onclick="window.print()">Print / PDF</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('estimate')">Estimate</div>
+  <div class="tab" onclick="showTab('catalog')">Material Catalog</div>
+  <div class="tab" onclick="showTab('rates')">Labor &amp; Equipment Rates</div>
+  <div class="tab" onclick="showTab('proposal')">Generate Proposal</div>
+</div>
+
+<!-- ESTIMATE TAB -->
+<div class="page active" id="tab-estimate">
+  <div class="two-col">
+    <div>
+
+      <!-- JOB INFO -->
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Job Information</span></div>
+        <div class="card-body">
+          <div class="grid4 mb">
+            <div><label class="fld">Estimate #</label><input id="est-num" placeholder="BBB-2026-001"/></div>
+            <div><label class="fld">Date</label><input type="date" id="est-date"/></div>
+            <div><label class="fld">Proposal #</label><input id="prop-num" placeholder="Optional"/></div>
+            <div><label class="fld">Division</label>
+              <select id="division"><option>Baytown, TX</option><option>Corpus Christi, TX</option></select>
+            </div>
+          </div>
+          <div class="grid2 mb">
+            <div><label class="fld">Client / Operator</label><input id="client" placeholder="e.g. Kinder Morgan"/></div>
+            <div><label class="fld">Facility / Terminal</label><input id="facility" placeholder="e.g. Galena Park Terminal"/></div>
+          </div>
+          <div class="grid4 mb">
+            <div><label class="fld">Tank #</label><input id="tank-num" placeholder="167-9"/></div>
+            <div><label class="fld">Diameter (ft)</label><input type="number" id="tank-dia" placeholder="140"/></div>
+            <div><label class="fld">Height (ft)</label><input type="number" id="tank-ht" placeholder="48"/></div>
+            <div><label class="fld">Job Type</label>
+              <select id="job-type">
+                <option value="">Select type...</option>
+                <option>Primary Seal Replacement</option>
+                <option>Secondary Seal Replacement</option>
+                <option>Primary and Secondary Seal Replacement</option>
+                <option>Primary Seal Gap Inspection</option>
+                <option>In-Service Tank Inspection</option>
+                <option>Lake Stock Replacement</option>
+                <option>Gauge Pulley Replacement</option>
+                <option>Emission Sock Replacement</option>
+                <option>Floating Roof Repair</option>
+                <option>Column Gasket Replacement</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2 mb">
+            <div><label class="fld">Est. Start Date</label><input type="date" id="start-date"/></div>
+            <div><label class="fld">Est. Completion Date</label><input type="date" id="end-date"/></div>
+          </div>
+          <div><label class="fld">Scope of Work</label>
+            <textarea class="notes-area" id="scope" placeholder="Describe scope, product in service, access conditions, special requirements..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- LABOR -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Labor <span class="badge" id="labor-badge">$0</span></span>
+          <span style="font-size:10px;color:var(--muted)">Rates auto-fill from Rates tab</span>
+        </div>
+        <div class="card-body">
+          <table class="tbl" id="labor-table">
+            <thead><tr>
+              <th style="width:22%">Role</th>
+              <th style="width:9%">ST Days</th>
+              <th style="width:9%">OT Days</th>
+              <th style="width:8%">Workers</th>
+              <th style="width:11%">ST Rate/hr</th>
+              <th style="width:11%">OT Rate/hr</th>
+              <th style="width:10%">Per Diem/day</th>
+              <th style="width:12%;text-align:right;padding-right:6px">Cost</th>
+              <th style="width:4%"></th>
+            </tr></thead>
+            <tbody id="labor-body"></tbody>
+          </table>
+          <button class="add-row no-print" id="add-labor-btn">+ Add Labor Row</button>
+        </div>
+      </div>
+
+      <!-- MILEAGE -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Mileage <span class="badge" id="mile-badge">$0</span></span>
+        </div>
+        <div class="card-body">
+          <div class="grid4 mb">
+            <div><label class="fld">One-Way Miles</label><input type="number" id="mile-oneway" placeholder="e.g. 45" min="0" oninput="recalc()"/></div>
+            <div><label class="fld">Round Trip Miles</label><input type="number" id="mile-rt" placeholder="Auto" min="0" readonly style="color:var(--muted)"/></div>
+            <div><label class="fld">Employees Driving</label><input type="number" id="mile-emp" placeholder="e.g. 4" min="0" oninput="recalc()"/></div>
+            <div><label class="fld">Rate per Mile</label><input type="number" id="mile-rate" value="0.76" step="0.01" min="0" oninput="recalc()"/></div>
+          </div>
+          <div style="font-size:11px;color:var(--muted)">Round trip calculated automatically. Total mileage cost flows into Other / Overhead.</div>
+        </div>
+      </div>
+
+      <!-- MATERIALS -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Materials <span class="badge" id="mat-badge">$0</span></span>
+          <button class="btn btn-ghost btn-sm no-print" onclick="showTab('catalog')">Browse Catalog</button>
+        </div>
+        <div class="card-body">
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:38%">Description</th>
+              <th style="width:10%">Qty</th>
+              <th style="width:10%">Unit</th>
+              <th style="width:16%">Unit Cost</th>
+              <th style="width:16%;text-align:right;padding-right:6px">Total</th>
+              <th style="width:5%"></th>
+            </tr></thead>
+            <tbody id="mat-body"></tbody>
+          </table>
+          <button class="add-row no-print" id="add-mat-btn">+ Add Material Row</button>
+        </div>
+      </div>
+
+      <!-- EQUIPMENT -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Equipment <span class="badge" id="equip-badge">$0</span></span>
+        </div>
+        <div class="card-body">
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:36%">Item</th>
+              <th style="width:10%">Qty</th>
+              <th style="width:14%">Rate ($)</th>
+              <th style="width:14%">Period</th>
+              <th style="width:16%;text-align:right;padding-right:6px">Total</th>
+              <th style="width:5%"></th>
+            </tr></thead>
+            <tbody id="equip-body"></tbody>
+          </table>
+          <button class="add-row no-print" id="add-equip-btn">+ Add Equipment Row</button>
+        </div>
+      </div>
+
+      <!-- OTHER -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Other / Overhead <span class="badge" id="other-badge">$0</span></span>
+        </div>
+        <div class="card-body">
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:52%">Description</th>
+              <th style="width:26%">Amount ($)</th>
+              <th style="width:16%;text-align:right;padding-right:6px">Total</th>
+              <th style="width:6%"></th>
+            </tr></thead>
+            <tbody id="other-body"></tbody>
+          </table>
+          <button class="add-row no-print" id="add-other-btn">+ Add Other Cost</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SUMMARY PANEL -->
+    <div>
+      <div class="summary">
+        <div class="sum-ttl">Estimate Summary</div>
+        <div class="sum-row"><span class="lbl">Labor Cost</span><span class="val" id="s-labor">$0.00</span></div>
+        <div class="sum-row"><span class="lbl">Labor Markup</span><span class="val" id="s-labor-mk">$0.00</span></div>
+        <hr class="sum-divider"/>
+        <div class="sum-row"><span class="lbl">Materials Cost</span><span class="val" id="s-mat">$0.00</span></div>
+        <div class="sum-row"><span class="lbl">Materials Markup</span><span class="val" id="s-mat-mk">$0.00</span></div>
+        <hr class="sum-divider"/>
+        <div class="sum-row"><span class="lbl">Equipment Cost</span><span class="val" id="s-equip">$0.00</span></div>
+        <div class="sum-row"><span class="lbl">Equipment Markup</span><span class="val" id="s-equip-mk">$0.00</span></div>
+        <hr class="sum-divider"/>
+        <div class="sum-row"><span class="lbl">Mileage</span><span class="val" id="s-mile">$0.00</span></div>
+        <div class="sum-row"><span class="lbl">Other / Overhead</span><span class="val" id="s-other">$0.00</span></div>
+        <div class="sum-row"><span class="lbl">Other Markup</span><span class="val" id="s-other-mk">$0.00</span></div>
+        <hr class="sum-divider"/>
+        <div class="sum-row"><span class="lbl">Total Cost</span><span class="val" id="s-cost">$0.00</span></div>
+        <div class="sum-row" style="font-weight:600"><span class="lbl">Total Markup</span><span class="val" id="s-mk-total">$0.00</span></div>
+
+        <div class="sum-total">
+          <span class="lbl">CONTRACT PRICE</span>
+          <span class="val" id="s-price">$0.00</span>
+        </div>
+
+        <div class="margin-wrap">
+          <div class="margin-lbl"><span>Profit Margin</span><span id="s-margin-pct">0.0%</span></div>
+          <div class="margin-bar"><div class="margin-fill" id="margin-fill" style="width:0%"></div></div>
+        </div>
+
+        <div class="section-hdr">Markup Rates (adjust per job)</div>
+        <div class="mk-grid">
+          <span>Labor %</span><input type="number" id="mk-labor" value="25" min="0" max="200" oninput="recalc()"/>
+          <span>Materials %</span><input type="number" id="mk-mat" value="25" min="0" max="200" oninput="recalc()"/>
+          <span>Equipment %</span><input type="number" id="mk-equip" value="25" min="0" max="200" oninput="recalc()"/>
+          <span>Other %</span><input type="number" id="mk-other" value="43" min="0" max="200" oninput="recalc()"/>
+        </div>
+
+        <div class="section-hdr">Burn Rate</div>
+        <div class="sum-row"><span class="lbl">Total Labor Hours</span><span class="val" id="s-hours">0</span></div>
+        <div class="sum-row"><span class="lbl">Cost / Hour</span><span class="val" id="s-burn">—</span></div>
+        <div class="sum-row"><span class="lbl">Bill / Hour</span><span class="val" id="s-burn-bill">—</span></div>
+
+        <div style="margin-top:16px">
+          <label class="fld">Internal Notes</label>
+          <textarea class="notes-area" id="int-notes" placeholder="Bid strategy, risks, client notes..." style="min-height:70px;font-size:12px"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOG TAB -->
+<div class="page" id="tab-catalog">
+  <div style="max-width:960px">
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Material Catalog</span>
+        <span style="font-size:11px;color:var(--muted)">Click any item to add it to your estimate</span>
+      </div>
+      <div class="card-body">
+        <input id="cat-search" placeholder="Search... e.g. Eco-Flex, neoprene, trim lock" oninput="filterCatalog()" style="margin-bottom:10px"/>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap" id="cat-btns"></div>
+        <div class="cat-grid" id="cat-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RATES TAB -->
+<div class="page" id="tab-rates">
+  <div style="max-width:750px">
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Labor Rates</span>
+        <span style="font-size:11px;color:var(--muted)">Edit to update defaults — rates auto-fill when adding labor rows</span>
+      </div>
+      <div class="card-body">
+        <table class="tbl">
+          <thead><tr><th>Role</th><th>ST Rate ($/hr)</th><th>OT Rate ($/hr)</th><th>Per Diem ($/day)</th><th>Hrs/Day</th></tr></thead>
+          <tbody id="rates-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Equipment Rates</span></div>
+      <div class="card-body">
+        <table class="tbl">
+          <thead><tr><th>Item</th><th>Daily ($)</th><th>Weekly ($)</th><th>Monthly ($)</th></tr></thead>
+          <tbody id="equip-rates-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSAL TAB -->
+<div class="page" id="tab-proposal">
+  <div style="max-width:820px">
+
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Proposal Details</span></div>
+      <div class="card-body">
+        <div class="grid2 mb">
+          <div><label class="fld">Proposal Number</label><input id="pp-num" placeholder="e.g. N26-195"/></div>
+          <div><label class="fld">Proposal Date</label><input type="date" id="pp-date"/></div>
+        </div>
+        <div class="grid2 mb">
+          <div><label class="fld">Tank Description</label><input id="pp-tank-desc" placeholder="e.g. 60' IFR Tank"/></div>
+          <div><label class="fld">Schedule</label><input id="pp-schedule" placeholder="e.g. 8 day(s) / 7-10's"/></div>
+        </div>
+        <div class="grid4 mb">
+          <div><label class="fld">Supervisors</label><input type="number" id="pp-crew-sup" value="1" min="0"/></div>
+          <div><label class="fld">Repairmen</label><input type="number" id="pp-crew-rep" value="4" min="0"/></div>
+          <div><label class="fld">Attendants</label><input type="number" id="pp-crew-att" value="1" min="0"/></div>
+          <div><label class="fld">Welders</label><input type="number" id="pp-crew-weld" value="0" min="0"/></div>
+        </div>
+        <div class="grid2">
+          <div><label class="fld">Prepared By</label><input id="pp-prepared-by" placeholder="e.g. Jonathan Wells"/></div>
+          <div><label class="fld">Title / Cell</label><input id="pp-title-cell" placeholder="e.g. General Manager - Products Division / C: 832-707-4513"/></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Scope of Work — Standard Items</span></div>
+      <div class="card-body" id="pp-scope-checklist"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Scope of Work — Job-Specific Items</span></div>
+      <div class="card-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">One item per line. These will be bolded on the proposal, matching the sample format.</div>
+        <textarea class="notes-area" id="pp-scope-custom" style="min-height:110px" placeholder="Remove Primary and Secondary Seals.
+Install New Primary Wiper Seal
+Install New Secondary Wiper Seal
+Replace Column Negotiators
+Install Gaskets on All IFR Appurtenances"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Conditions of Sale</span></div>
+      <div class="card-body" id="pp-conditions-checklist"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-body" style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:12px;color:var(--muted)">Pulls Labor / Equipment / Material totals (with markup applied) directly from your current estimate.</div>
+        <button class="btn btn-teal" id="gen-proposal-btn" style="padding:10px 22px;font-size:13px">Generate Proposal (Word)</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══ DATA ══
+var LABOR_RATES = [
+  {role:"Safety Coordinator",       st:65.85, ot:90.38, pd:100, hpd:10},
+  {role:"Superintendent / PM",      st:65.85, ot:90.38, pd:100, hpd:10},
+  {role:"Foreman",                  st:56.25, ot:77.06, pd:100, hpd:10},
+  {role:"Pusher",                   st:51.75, ot:67.50, pd:90,  hpd:10},
+  {role:"Welder",                   st:49.10, ot:66.15, pd:100, hpd:10},
+  {role:"Seal Mechanic / Repairman",st:44.75, ot:55.65, pd:75,  hpd:10},
+  {role:"Helper / CS Watch",        st:39.70, ot:52.00, pd:75,  hpd:10},
+  {role:"Fire / Hole Watch",        st:39.70, ot:52.00, pd:75,  hpd:10}
+];
+
+var EQUIP_RATES = [
+  {item:"Pick Up Truck",            day:90,  week:360,  month:1080},
+  {item:"Trailer Office/Storage",   day:67,  week:200,  month:600},
+  {item:"Utility Trailer",          day:35,  week:104,  month:312},
+  {item:"Welding Machine",          day:100, week:400,  month:900},
+  {item:"160-185 CFM Compressor",   day:110, week:430,  month:1190},
+  {item:"250 CFM Compressor",       day:187, week:780,  month:2140},
+  {item:"Coppus Blower",            day:83,  week:250,  month:750},
+  {item:"Air Tugger",               day:98,  week:294,  month:882},
+  {item:"Impact Wrench",            day:40,  week:120,  month:360},
+  {item:"Drill",                    day:25,  week:75,   month:225},
+  {item:"Grinder",                  day:38,  week:114,  month:342},
+  {item:"Whitney Punch",            day:64,  week:192,  month:576},
+  {item:"Fire Extinguisher",        day:30,  week:90,   month:270},
+  {item:"Personal Gas Monitors",    day:97,  week:329,  month:987},
+  {item:"Constant Monitor",         day:94,  week:280,  month:840},
+  {item:"Skid Steer Loader",        day:280, week:840,  month:2520},
+  {item:"Chain Hoist (6 Ton)",      day:73,  week:220,  month:660},
+  {item:"50 Ton Hydraulic Jack",    day:63,  week:191,  month:584},
+  {item:"20 Ton Hydraulic Jack",    day:35,  week:140,  month:288},
+  {item:"Standard Foreman Tools",   day:165, week:495,  month:995},
+  {item:"Air Hose (50 ft)",         day:15,  week:45,   month:135},
+  {item:"Vacuum Box",               day:57,  week:180,  month:340},
+  {item:"Wind Meter",               day:38,  week:72,   month:216},
+  {item:"Survey Transit / Level",   day:107, week:320,  month:960}
+];
+
+var CATALOG = [
+  {cat:"Primary Seals",    name:"PS-1000 48in Shoe Seal",      unit:"LF",  cost:71},
+  {cat:"Primary Seals",    name:"PS-1000 36in Shoe Seal",      unit:"LF",  cost:55},
+  {cat:"Primary Seals",    name:"PS-1000 24in Shoe Seal",      unit:"LF",  cost:59},
+  {cat:"Primary Seals",    name:"PS-1000 18in Shoe Seal",      unit:"LF",  cost:51},
+  {cat:"Primary Seals",    name:"PS-1000 16in Shoe Seal",      unit:"LF",  cost:50},
+  {cat:"Primary Seals",    name:"PS-1000 12in Shoe Seal",      unit:"LF",  cost:36},
+  {cat:"Primary Seals",    name:"HMT Mini-Shoe Seal",          unit:"LF",  cost:250},
+  {cat:"Primary Seals",    name:"Direct Tank 24in",            unit:"LF",  cost:177},
+  {cat:"Primary Seals",    name:"Direct Tank 40in",            unit:"LF",  cost:220},
+  {cat:"Primary Seals",    name:"Direct Tank Cap Plus",        unit:"LF",  cost:219},
+  {cat:"Primary Seals",    name:"10BA Galv FD",                unit:"LF",  cost:128},
+  {cat:"Secondary Seals",  name:"Eco-Flex Secondary",          unit:"LF",  cost:54},
+  {cat:"Secondary Seals",  name:"Low Profile Secondary",       unit:"LF",  cost:52},
+  {cat:"Secondary Seals",  name:"Foam Dam",                    unit:"LF",  cost:40},
+  {cat:"Secondary Seals",  name:"Seal King",                   unit:"LF",  cost:115},
+  {cat:"Secondary Seals",  name:"Seal King (Rim Molded)",      unit:"LF",  cost:171.5},
+  {cat:"Wiper Seals",      name:"TS-2000 Wiper Seal",          unit:"LF",  cost:33},
+  {cat:"Wiper Seals",      name:"TS-1500 Wiper Seal",          unit:"LF",  cost:23.5},
+  {cat:"Wiper Seals",      name:"TS-1000 Wiper Seal",          unit:"LF",  cost:23.5},
+  {cat:"Wiper Seals",      name:"Baker Wiper",                 unit:"LF",  cost:26.5},
+  {cat:"Wiper Seals",      name:"Wiper No Holes",              unit:"LF",  cost:21.5},
+  {cat:"Wiper Seals",      name:"Wiper Punched",               unit:"LF",  cost:24.28},
+  {cat:"Wiper Seals",      name:"Surlyn 13in Wiper Tip",       unit:"LF",  cost:13.5},
+  {cat:"Wiper Seals",      name:"Wiper Tip 6in HMT Double",    unit:"LF",  cost:21},
+  {cat:"Wiper Seals",      name:"Alltech Wiper Seal w/Holes",  unit:"LF",  cost:23},
+  {cat:"Fabric",           name:"22in Primary Fabric 20MIL",   unit:"LF",  cost:9.50},
+  {cat:"Fabric",           name:"22in Primary Fabric 10MIL",   unit:"LF",  cost:5.60},
+  {cat:"Fabric",           name:"20in Primary Fabric 10MIL",   unit:"LF",  cost:5.12},
+  {cat:"Fabric",           name:"18in Primary Fabric 10MIL",   unit:"LF",  cost:4.95},
+  {cat:"Fabric",           name:"30in Secondary Fabric 25MIL", unit:"LF",  cost:7.05},
+  {cat:"Fabric",           name:"30in Secondary Fabric 35MIL", unit:"LF",  cost:9.60},
+  {cat:"Fabric",           name:"22in Secondary Fabric 35MIL", unit:"LF",  cost:7.04},
+  {cat:"Fabric",           name:"26in CrossFilm 20MIL",        unit:"LF",  cost:27.10},
+  {cat:"Fabric",           name:"12in CrossFilm 20MIL",        unit:"LF",  cost:13.00},
+  {cat:"Fabric",           name:"20in Teflon PTFE 20MIL",      unit:"LF",  cost:10.20},
+  {cat:"Neoprene",         name:"3/16in Neoprene",             unit:"LF",  cost:34.48},
+  {cat:"Neoprene",         name:"Surlyn Single Layer",         unit:"LF",  cost:1.92},
+  {cat:"Neoprene",         name:"Lamatek Sponge Tape",         unit:"LF",  cost:0.13},
+  {cat:"Neoprene",         name:"20MIL Leg Boot w/Clamp",      unit:"EA",  cost:101.25},
+  {cat:"Neoprene",         name:"25MIL Vapor Boot w/Zipper",   unit:"EA",  cost:950},
+  {cat:"Trim Lock",        name:"1/4W x 1/2H Trim Lock",       unit:"LF",  cost:2.25},
+  {cat:"Trim Lock",        name:"1/8W x 1/2H Trim Lock",       unit:"LF",  cost:0.90},
+  {cat:"Trim Lock",        name:"Fluorotex 1400 60in",         unit:"LF",  cost:7.49},
+  {cat:"Components",       name:"Stiffening Ring",             unit:"LF",  cost:11.50},
+  {cat:"Components",       name:"C-Channel",                   unit:"LF",  cost:15.00},
+  {cat:"Components",       name:"Z-Bracket",                   unit:"EA",  cost:112.50},
+  {cat:"Components",       name:"Leg Socks",                   unit:"LF",  cost:48.10},
+  {cat:"Components",       name:"MS-SS Splice Kit",            unit:"EA",  cost:90.00},
+  {cat:"Components",       name:"Pressure Vacuum Breaker",     unit:"EA",  cost:768},
+  {cat:"Components",       name:"PV Manway Lock",              unit:"EA",  cost:30},
+  {cat:"Components",       name:"Ladder Well Box",             unit:"EA",  cost:782},
+  {cat:"Components",       name:"Column Well Box",             unit:"EA",  cost:545},
+  {cat:"Components",       name:"Float Guide Box",             unit:"EA",  cost:360},
+  {cat:"Components",       name:"Round Legs with Pads",        unit:"EA",  cost:25.25},
+  {cat:"Components",       name:"Brass Rollers",               unit:"LOT", cost:1500},
+  {cat:"Components",       name:"Ultra Check Gauge Pole",      unit:"EA",  cost:4500},
+  {cat:"Consumables",      name:"Fabric Savers",               unit:"EA",  cost:12},
+  {cat:"Consumables",      name:"3M Adhesive Spray",           unit:"EA",  cost:29.05},
+  {cat:"Consumables",      name:"Anti-Seize",                  unit:"EA",  cost:24.25},
+  {cat:"Consumables",      name:"Brake Cleaner",               unit:"EA",  cost:4.95},
+  {cat:"Consumables",      name:"Oilex Bucket",                unit:"EA",  cost:15.65},
+  {cat:"Consumables",      name:"3M Double Sided Tape",        unit:"EA",  cost:2.49},
+  {cat:"Consumables",      name:"Supply Ground",               unit:"EA",  cost:125},
+  {cat:"Consumables",      name:"Misc Supplies",               unit:"LOT", cost:450},
+  {cat:"Logistics",        name:"Shipping / Freight",          unit:"LOT", cost:1200},
+  {cat:"Logistics",        name:"Fuel",                        unit:"LOT", cost:450}
+];
+
+// ══ HELPERS ══
+function el(tag, props, children) {
+  var node = document.createElement(tag);
+  if (props) {
+    for (var k in props) {
+      if (k === "class") node.className = props[k];
+      else if (k === "text") node.textContent = props[k];
+      else node.setAttribute(k, props[k]);
+    }
+  }
+  if (children) {
+    children.forEach(function(c){ if(c) node.appendChild(c); });
+  }
+  return node;
+}
+function opt(label, selected) {
+  var o = document.createElement("option");
+  o.textContent = label;
+  if (selected) o.selected = true;
+  return o;
+}
+function numInput(cls, value, extra) {
+  var i = document.createElement("input");
+  i.type = "number";
+  i.className = cls;
+  i.value = value;
+  if (extra) { for (var k in extra) i.setAttribute(k, extra[k]); }
+  return i;
+}
+function txtInput(cls, value, placeholder) {
+  var i = document.createElement("input");
+  i.type = "text";
+  if (cls) i.className = cls;
+  i.value = value || "";
+  if (placeholder) i.placeholder = placeholder;
+  return i;
+}
+function td(child) {
+  var c = document.createElement("td");
+  if (child) c.appendChild(child);
+  return c;
+}
+function tdMono(id) {
+  var c = document.createElement("td");
+  c.className = "mono";
+  c.id = id;
+  c.textContent = "$0.00";
+  return c;
+}
+function delBtn(onClick) {
+  var b = document.createElement("button");
+  b.className = "del";
+  b.textContent = "×";
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+// ══ ROW COUNTERS ══
+var lid = 0, mid = 0, eid = 0, oid = 0;
+
+// ══ LABOR ROWS ══
+function addLabor(role) {
+  lid++;
+  var id = lid;
+  var r = LABOR_RATES.find(function(x){ return x.role === role; }) || LABOR_RATES[2];
+
+  var tr = document.createElement("tr");
+  tr.id = "lr-" + id;
+
+  var roleSel = document.createElement("select");
+  LABOR_RATES.forEach(function(rr){ roleSel.appendChild(opt(rr.role, rr.role === r.role)); });
+
+  var stDays = numInput("st-days", 1, {min:0, step:0.5});
+  var otDays = numInput("ot-days", 0, {min:0, step:0.5});
+  var workers = numInput("workers", 1, {min:1});
+  var stRate = numInput("st-rate", r.st, {min:0, step:0.01});
+  var otRate = numInput("ot-rate", r.ot, {min:0, step:0.01});
+  var pdRate = numInput("pd-rate", r.pd, {min:0});
+
+  roleSel.addEventListener("change", function(){
+    var sel = LABOR_RATES.find(function(x){ return x.role === roleSel.value; }) || LABOR_RATES[2];
+    stRate.value = sel.st;
+    otRate.value = sel.ot;
+    pdRate.value = sel.pd;
+    recalc();
+  });
+  [stDays, otDays, workers, stRate, otRate, pdRate].forEach(function(inp){
+    inp.addEventListener("input", recalc);
+  });
+
+  tr.appendChild(td(roleSel));
+  tr.appendChild(td(stDays));
+  tr.appendChild(td(otDays));
+  tr.appendChild(td(workers));
+  tr.appendChild(td(stRate));
+  tr.appendChild(td(otRate));
+  tr.appendChild(td(pdRate));
+  tr.appendChild(tdMono("ll-" + id));
+  tr.appendChild(td(delBtn(function(){ tr.remove(); recalc(); })));
+
+  document.getElementById("labor-body").appendChild(tr);
+  recalc();
+}
+
+// ══ MATERIAL ROWS ══
+function addMaterial(desc, qty, unit, cost) {
+  mid++;
+  var id = mid;
+  desc = desc || ""; qty = qty || 1; unit = unit || "EA"; cost = cost || 0;
+  var units = ["LF","EA","LOT","GAL","LB","SF","HR","ROLL","SET"];
+
+  var tr = document.createElement("tr");
+  tr.id = "mr-" + id;
+
+  var descInp = txtInput("", desc, "Description");
+  var qtyInp = numInput("", qty, {min:0, step:"any"});
+  var unitSel = document.createElement("select");
+  units.forEach(function(u){ unitSel.appendChild(opt(u, u === unit)); });
+  var costInp = numInput("", cost, {min:0, step:"any"});
+
+  [descInp, qtyInp, costInp].forEach(function(inp){ inp.addEventListener("input", recalc); });
+  unitSel.addEventListener("change", recalc);
+
+  tr.appendChild(td(descInp));
+  tr.appendChild(td(qtyInp));
+  tr.appendChild(td(unitSel));
+  tr.appendChild(td(costInp));
+  tr.appendChild(tdMono("ml-" + id));
+  tr.appendChild(td(delBtn(function(){ tr.remove(); recalc(); })));
+
+  document.getElementById("mat-body").appendChild(tr);
+  recalc();
+}
+
+// ══ EQUIPMENT ROWS ══
+function addEquip() {
+  eid++;
+  var id = eid;
+
+  var tr = document.createElement("tr");
+  tr.id = "er-" + id;
+
+  var itemSel = document.createElement("select");
+  itemSel.className = "eq-sel";
+  itemSel.appendChild(opt("Select item...", true));
+  EQUIP_RATES.forEach(function(e){ itemSel.appendChild(opt(e.item, false)); });
+
+  var qtyInp = numInput("eq-qty", 1, {min:0});
+  var rateInp = numInput("eq-rate", 0, {min:0, step:"any"});
+
+  var periodSel = document.createElement("select");
+  periodSel.className = "eq-period";
+  ["Day","Week","Month"].forEach(function(p){ periodSel.appendChild(opt(p, false)); });
+
+  function applyRate() {
+    var r = EQUIP_RATES.find(function(x){ return x.item === itemSel.value; });
+    if (!r) return;
+    var period = periodSel.value;
+    rateInp.value = period === "Week" ? r.week : period === "Month" ? r.month : r.day;
+    recalc();
+  }
+  itemSel.addEventListener("change", applyRate);
+  periodSel.addEventListener("change", applyRate);
+  qtyInp.addEventListener("input", recalc);
+  rateInp.addEventListener("input", recalc);
+
+  tr.appendChild(td(itemSel));
+  tr.appendChild(td(qtyInp));
+  tr.appendChild(td(rateInp));
+  tr.appendChild(td(periodSel));
+  tr.appendChild(tdMono("el-" + id));
+  tr.appendChild(td(delBtn(function(){ tr.remove(); recalc(); })));
+
+  document.getElementById("equip-body").appendChild(tr);
+  recalc();
+}
+
+// ══ OTHER COST ROWS ══
+function addOther(desc, amt) {
+  oid++;
+  var id = oid;
+  desc = desc || ""; amt = amt || 0;
+
+  var tr = document.createElement("tr");
+  tr.id = "or-" + id;
+
+  var descInp = txtInput("", desc, "e.g. Mobilization, Subcontractor");
+  var amtInp = numInput("", amt, {min:0, step:"any"});
+
+  [descInp, amtInp].forEach(function(inp){ inp.addEventListener("input", recalc); });
+
+  tr.appendChild(td(descInp));
+  tr.appendChild(td(amtInp));
+  tr.appendChild(tdMono("ol-" + id));
+  tr.appendChild(td(delBtn(function(){ tr.remove(); recalc(); })));
+
+  document.getElementById("other-body").appendChild(tr);
+  recalc();
+}
+
+// ══ TABS ══
+function showTab(id) {
+  var tabs = document.querySelectorAll(".tab");
+  var pages = document.querySelectorAll(".page");
+  var ids = ["estimate","catalog","rates","proposal"];
+  tabs.forEach(function(t,i){ t.classList.toggle("active", ids[i] === id); });
+  pages.forEach(function(p){ p.classList.toggle("active", p.id === "tab-" + id); });
+}
+
+// ══ RATES TABLES ══
+function buildRatesTable() {
+  var tb = document.getElementById("rates-body");
+  tb.innerHTML = "";
+  LABOR_RATES.forEach(function(r, i) {
+    var tr = document.createElement("tr");
+
+    var roleInp = document.createElement("input");
+    roleInp.value = r.role;
+    roleInp.style.background = "transparent";
+    roleInp.style.border = "none";
+    roleInp.style.color = "var(--text)";
+    roleInp.style.fontWeight = "600";
+    roleInp.style.padding = "4px 0";
+    roleInp.addEventListener("input", function(){ LABOR_RATES[i].role = roleInp.value; });
+
+    var stInp = numInput("", r.st, {});
+    stInp.style.maxWidth = "90px";
+    stInp.addEventListener("input", function(){ LABOR_RATES[i].st = +stInp.value; });
+
+    var otInp = numInput("", r.ot, {});
+    otInp.style.maxWidth = "90px";
+    otInp.addEventListener("input", function(){ LABOR_RATES[i].ot = +otInp.value; });
+
+    var pdInp = numInput("", r.pd, {});
+    pdInp.style.maxWidth = "80px";
+    pdInp.addEventListener("input", function(){ LABOR_RATES[i].pd = +pdInp.value; });
+
+    var hpdInp = numInput("", r.hpd, {});
+    hpdInp.style.maxWidth = "70px";
+    hpdInp.addEventListener("input", function(){ LABOR_RATES[i].hpd = +hpdInp.value; });
+
+    tr.appendChild(td(roleInp));
+    tr.appendChild(td(stInp));
+    tr.appendChild(td(otInp));
+    tr.appendChild(td(pdInp));
+    tr.appendChild(td(hpdInp));
+    tb.appendChild(tr);
+  });
+}
+
+function buildEquipRatesTable() {
+  var tb = document.getElementById("equip-rates-body");
+  tb.innerHTML = "";
+  EQUIP_RATES.forEach(function(r, i) {
+    var tr = document.createElement("tr");
+
+    var nameTd = document.createElement("td");
+    nameTd.style.color = "var(--text)";
+    nameTd.style.fontSize = "12px";
+    nameTd.style.padding = "5px 6px";
+    nameTd.textContent = r.item;
+
+    var dayInp = numInput("", r.day, {});
+    dayInp.style.maxWidth = "80px";
+    dayInp.addEventListener("input", function(){ EQUIP_RATES[i].day = +dayInp.value; });
+
+    var weekInp = numInput("", r.week, {});
+    weekInp.style.maxWidth = "80px";
+    weekInp.addEventListener("input", function(){ EQUIP_RATES[i].week = +weekInp.value; });
+
+    var monthInp = numInput("", r.month, {});
+    monthInp.style.maxWidth = "90px";
+    monthInp.addEventListener("input", function(){ EQUIP_RATES[i].month = +monthInp.value; });
+
+    tr.appendChild(nameTd);
+    tr.appendChild(td(dayInp));
+    tr.appendChild(td(weekInp));
+    tr.appendChild(td(monthInp));
+    tb.appendChild(tr);
+  });
+}
+
+// ══ CATALOG ══
+var _catFilter = "";
+function buildCatalog() {
+  var cats = [];
+  CATALOG.forEach(function(c){ if (cats.indexOf(c.cat) < 0) cats.push(c.cat); });
+  var fb = document.getElementById("cat-btns");
+  fb.innerHTML = "";
+
+  var allBtn = document.createElement("button");
+  allBtn.className = "btn btn-teal btn-sm";
+  allBtn.textContent = "All";
+  allBtn.addEventListener("click", function(){ _catFilter = ""; filterCatalog(); });
+  fb.appendChild(allBtn);
+
+  cats.forEach(function(c){
+    var b = document.createElement("button");
+    b.className = "btn btn-ghost btn-sm";
+    b.textContent = c;
+    b.addEventListener("click", function(){ _catFilter = c; filterCatalog(); });
+    fb.appendChild(b);
+  });
+  renderCatalog(CATALOG);
+}
+
+function filterCatalog() {
+  var q = document.getElementById("cat-search").value.toLowerCase();
+  var filtered = CATALOG.filter(function(i){
+    var matchCat = !_catFilter || i.cat === _catFilter;
+    var matchQ = !q || i.name.toLowerCase().indexOf(q) >= 0 || i.cat.toLowerCase().indexOf(q) >= 0;
+    return matchCat && matchQ;
+  });
+  renderCatalog(filtered);
+}
+
+function renderCatalog(items) {
+  var g = document.getElementById("cat-grid");
+  g.innerHTML = "";
+  items.forEach(function(item){
+    var d = document.createElement("div");
+    d.className = "cat-item";
+
+    var nameDiv = document.createElement("div");
+    nameDiv.className = "ci-name";
+    nameDiv.textContent = item.name;
+
+    var priceDiv = document.createElement("div");
+    priceDiv.className = "ci-price";
+    priceDiv.textContent = "$" + item.cost.toFixed(2);
+
+    var unitDiv = document.createElement("div");
+    unitDiv.className = "ci-unit";
+    unitDiv.textContent = item.unit + " · " + item.cat;
+
+    d.appendChild(nameDiv);
+    d.appendChild(priceDiv);
+    d.appendChild(unitDiv);
+
+    d.addEventListener("click", function(){
+      addMaterial(item.name, 1, item.unit, item.cost);
+      showTab("estimate");
+    });
+    g.appendChild(d);
+  });
+}
+
+// ══ RECALC ══
+var fmt = function(v){ return "$" + v.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); };
+var fmtR = function(v){ return "$" + Math.round(v).toLocaleString("en-US"); };
+
+function recalc() {
+  var laborCost = 0, totalHours = 0;
+  document.querySelectorAll("#labor-body tr").forEach(function(tr){
+    var stD  = +(tr.querySelector(".st-days")  ? tr.querySelector(".st-days").value  : 0) || 0;
+    var otD  = +(tr.querySelector(".ot-days")  ? tr.querySelector(".ot-days").value  : 0) || 0;
+    var wkrs = +(tr.querySelector(".workers")  ? tr.querySelector(".workers").value  : 1) || 1;
+    var stR  = +(tr.querySelector(".st-rate")  ? tr.querySelector(".st-rate").value  : 0) || 0;
+    var otR  = +(tr.querySelector(".ot-rate")  ? tr.querySelector(".ot-rate").value  : 0) || 0;
+    var pd   = +(tr.querySelector(".pd-rate")  ? tr.querySelector(".pd-rate").value  : 0) || 0;
+    var sel  = tr.querySelector("select");
+    var role = sel ? sel.value : "";
+    var rData = LABOR_RATES.find(function(x){ return x.role === role; }) || {hpd:10};
+    var hpd = rData.hpd || 10;
+    var stHrs = stD * hpd * wkrs;
+    var otHrs = otD * hpd * wkrs;
+    var pdCost = (stD + otD) * pd * wkrs;
+    var t = stHrs * stR + otHrs * otR + pdCost;
+    laborCost += t;
+    totalHours += (stHrs + otHrs);
+    var cell = tr.querySelector(".mono");
+    if (cell) cell.textContent = fmt(t);
+  });
+
+  var matCost = 0;
+  document.querySelectorAll("#mat-body tr").forEach(function(tr){
+    var inputs = tr.querySelectorAll("input[type='number']");
+    if (inputs.length < 2) return;
+    var t = (+inputs[0].value || 0) * (+inputs[1].value || 0);
+    matCost += t;
+    var cell = tr.querySelector(".mono");
+    if (cell) cell.textContent = fmt(t);
+  });
+
+  var equipCost = 0;
+  document.querySelectorAll("#equip-body tr").forEach(function(tr){
+    var qty  = +(tr.querySelector(".eq-qty")  ? tr.querySelector(".eq-qty").value  : 0) || 0;
+    var rate = +(tr.querySelector(".eq-rate") ? tr.querySelector(".eq-rate").value : 0) || 0;
+    var t = qty * rate;
+    equipCost += t;
+    var cell = tr.querySelector(".mono");
+    if (cell) cell.textContent = fmt(t);
+  });
+
+  var ow = +document.getElementById("mile-oneway").value || 0;
+  var emp = +document.getElementById("mile-emp").value || 0;
+  var mrate = +document.getElementById("mile-rate").value || 0.76;
+  var mileCost = ow * 2 * emp * mrate;
+
+  var otherCost = mileCost;
+  document.querySelectorAll("#other-body tr").forEach(function(tr){
+    var input = tr.querySelector("input[type='number']");
+    if (!input) return;
+    var t = +input.value || 0;
+    otherCost += t;
+    var cell = tr.querySelector(".mono");
+    if (cell) cell.textContent = fmt(t);
+  });
+
+  var mkL = (+document.getElementById("mk-labor").value || 0) / 100;
+  var mkM = (+document.getElementById("mk-mat").value || 0) / 100;
+  var mkE = (+document.getElementById("mk-equip").value || 0) / 100;
+  var mkO = (+document.getElementById("mk-other").value || 0) / 100;
+
+  var laborMk = laborCost * mkL;
+  var matMk = matCost * mkM;
+  var equipMk = equipCost * mkE;
+  var otherMk = otherCost * mkO;
+
+  var totalCost = laborCost + matCost + equipCost + otherCost;
+  var totalMk = laborMk + matMk + equipMk + otherMk;
+  var price = totalCost + totalMk;
+  var margin = price > 0 ? (totalMk / price) * 100 : 0;
+
+  document.getElementById("s-labor").textContent = fmt(laborCost);
+  document.getElementById("s-labor-mk").textContent = fmt(laborMk);
+  document.getElementById("s-mat").textContent = fmt(matCost);
+  document.getElementById("s-mat-mk").textContent = fmt(matMk);
+  document.getElementById("s-equip").textContent = fmt(equipCost);
+  document.getElementById("s-equip-mk").textContent = fmt(equipMk);
+  document.getElementById("s-mile").textContent = fmt(mileCost);
+  document.getElementById("s-other").textContent = fmt(otherCost);
+  document.getElementById("s-other-mk").textContent = fmt(otherMk);
+  document.getElementById("s-cost").textContent = fmt(totalCost);
+  document.getElementById("s-mk-total").textContent = fmt(totalMk);
+  document.getElementById("s-price").textContent = fmt(price);
+  document.getElementById("s-margin-pct").textContent = margin.toFixed(1) + "%";
+
+  document.getElementById("labor-badge").textContent = fmtR(laborCost + laborMk);
+  document.getElementById("mat-badge").textContent = fmtR(matCost + matMk);
+  document.getElementById("equip-badge").textContent = fmtR(equipCost + equipMk);
+  document.getElementById("other-badge").textContent = fmtR(otherCost + otherMk);
+  document.getElementById("mile-badge").textContent = fmtR(mileCost);
+
+  var fill = document.getElementById("margin-fill");
+  fill.style.width = Math.min(100, margin) + "%";
+  fill.style.background = margin >= 22 ? "#00b5a5" : margin >= 15 ? "#f0a500" : "#f85149";
+
+  document.getElementById("s-hours").textContent = totalHours.toFixed(1);
+  document.getElementById("s-burn").textContent = totalHours > 0 ? fmtR(totalCost / totalHours) + "/hr" : "—";
+  document.getElementById("s-burn-bill").textContent = totalHours > 0 ? fmtR(price / totalHours) + "/hr" : "—";
+
+  // Expose final marked-up totals for proposal generation
+  window._estimateTotals = {
+    laborFinal: laborCost + laborMk,
+    equipFinal: equipCost + equipMk,
+    matFinal: matCost + matMk,
+    otherFinal: otherCost + otherMk,
+    grandTotal: price
+  };
+}
+
+// ══ NEW ESTIMATE ══
+function newEstimate() {
+  if (!confirm("Clear all data and start a new estimate?")) return;
+  ["est-num","client","facility","tank-num","tank-dia","tank-ht","scope","int-notes","prop-num","start-date","end-date","mile-oneway","mile-rt","mile-emp"]
+    .forEach(function(id){ var e = document.getElementById(id); if (e) e.value = ""; });
+  document.getElementById("est-date").valueAsDate = new Date();
+  document.getElementById("job-type").selectedIndex = 0;
+  document.getElementById("division").selectedIndex = 0;
+  document.getElementById("mile-rate").value = "0.76";
+  ["labor-body","mat-body","equip-body","other-body"].forEach(function(id){ document.getElementById(id).innerHTML = ""; });
+  lid = 0; mid = 0; eid = 0; oid = 0;
+  addLabor("Foreman");
+  addLabor("Seal Mechanic / Repairman");
+  addEquip();
+  recalc();
+}
+
+// ══ INIT ══
+document.getElementById("est-date").valueAsDate = new Date();
+buildRatesTable();
+buildEquipRatesTable();
+buildCatalog();
+
+document.getElementById("add-labor-btn").addEventListener("click", function(){ addLabor(""); });
+document.getElementById("add-mat-btn").addEventListener("click", function(){ addMaterial("", 1, "EA", 0); });
+document.getElementById("add-equip-btn").addEventListener("click", function(){ addEquip(); });
+document.getElementById("add-other-btn").addEventListener("click", function(){ addOther("", 0); });
+
+document.getElementById("mile-oneway").addEventListener("input", function(){
+  var ow = +this.value || 0;
+  document.getElementById("mile-rt").value = ow > 0 ? (ow * 2) : "";
+  recalc();
+});
+
+document.getElementById("mile-emp").addEventListener("input", recalc);
+document.getElementById("mile-rate").addEventListener("input", recalc);
+document.getElementById("mk-labor").addEventListener("input", recalc);
+document.getElementById("mk-mat").addEventListener("input", recalc);
+document.getElementById("mk-equip").addEventListener("input", recalc);
+document.getElementById("mk-other").addEventListener("input", recalc);
+
+addLabor("Foreman");
+addLabor("Seal Mechanic / Repairman");
+addEquip();
+
+
+// ══════════════════════════════════════════════
+// PROPOSAL GENERATION
+// ══════════════════════════════════════════════
+
+var STANDARD_SCOPE_ITEMS = [
+  {text:"Submittal of safe work plan for owner approval.", checked:true},
+  {text:"Receive owner approval drawings after review by owner, review and make changes or modifications, if required.", checked:true},
+  {text:"Securing materials for fabrication.", checked:true},
+  {text:"Furnishing owner with a safe work plan for this project. Owner is asked to review BBB's safe work plan prior to our starting work.", checked:true},
+  {text:"Fabricate materials for this project.", checked:true},
+  {text:"Mobilization to jobsite.", checked:true},
+  {text:"Conduct a site-specific safety and pre-construction meeting at the jobsite prior to startup. This meeting is to discuss owner requirements for safety and other issues at his site and to address specific project issues.", checked:true},
+  {text:"Perform final walk through with owner representative.", checked:true},
+  {text:"Demobilize tank crew.", checked:true}
+];
+
+var CONDITIONS_OF_SALE = [
+  {text:"Permits, bonds, taxes are not included.", checked:true},
+  {text:"The BASE BID price includes working a 60-hour week. Weather delays will be added to the end of the schedule.", checked:true},
+  {text:"Any items not explicated stated in the above scope are excluded.", checked:true},
+  {text:"Pricing includes removal of and placing all waste/scrap material generated because of the work performed into roll offs at the tank site.", checked:true},
+  {text:"Price Includes (1) nonproductive bottle watch/fire/hole watch.", checked:true},
+  {text:"Proposal based on performing the work in accordance with OSHA and BBB Tank Services standard safety practices.", checked:true},
+  {text:"Supplied air is not included.", checked:true},
+  {text:"Stand by Rescue Team is not included.", checked:true},
+  {text:"All contaminated material on-site is to be disposed of in Owner Container Bins.", checked:true},
+  {text:"One site mobilization and de-mobilization is included.", checked:true},
+  {text:"Daily hot work and/or confined space permits, if required, are to be provided by the purchaser fifteen minutes prior to BBB starting work each day. Costs and schedule impacts for permitting delays will be billed at our T&M rates.", checked:true},
+  {text:"BBB assumes we will have clear, unrestricted, and unimpeded access to the construction site during all times of project. It is assumed that BBB will be reimbursed for any standby / re-work time caused by interference or delays caused by Purchaser, 3rd party inspectors, or other contractors working in the area not associated with BBB.", checked:true},
+  {text:"We have included for up to two (2) hours per day associated with rain stoppage. This covers the cost of labor and equipment.", checked:true},
+  {text:"All additional work that is to be performed outside of the scope of work is subject to be charged at T&M rates.", checked:true},
+  {text:"Roads/access to the tank site by trucks under their own power is required and is by others.", checked:true},
+  {text:"BBB Prices are good for 15 days after date of proposal.", checked:true},
+  {text:"Guarantees from manufactures of equipment, installed on the tank by BBB Tank Services, shall be for the benefit of the Purchaser. BBB Tank Services' liability shall be limited to that of the equipment manufacturer's warranty.", checked:true}
+];
+
+function buildScopeChecklist() {
+  var box = document.getElementById("pp-scope-checklist");
+  box.innerHTML = "";
+  STANDARD_SCOPE_ITEMS.forEach(function(item, i){
+    var row = document.createElement("label");
+    row.style.display = "flex";
+    row.style.alignItems = "flex-start";
+    row.style.gap = "8px";
+    row.style.padding = "5px 0";
+    row.style.fontSize = "12px";
+    row.style.cursor = "pointer";
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = item.checked;
+    cb.style.width = "auto";
+    cb.style.marginTop = "2px";
+    cb.addEventListener("change", function(){ STANDARD_SCOPE_ITEMS[i].checked = cb.checked; });
+    var span = document.createElement("span");
+    span.textContent = item.text;
+    row.appendChild(cb);
+    row.appendChild(span);
+    box.appendChild(row);
+  });
+}
+
+function buildConditionsChecklist() {
+  var box = document.getElementById("pp-conditions-checklist");
+  box.innerHTML = "";
+  CONDITIONS_OF_SALE.forEach(function(item, i){
+    var row = document.createElement("label");
+    row.style.display = "flex";
+    row.style.alignItems = "flex-start";
+    row.style.gap = "8px";
+    row.style.padding = "5px 0";
+    row.style.fontSize = "12px";
+    row.style.cursor = "pointer";
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = item.checked;
+    cb.style.width = "auto";
+    cb.style.marginTop = "2px";
+    cb.addEventListener("change", function(){ CONDITIONS_OF_SALE[i].checked = cb.checked; });
+    var span = document.createElement("span");
+    span.textContent = item.text;
+    row.appendChild(cb);
+    row.appendChild(span);
+    box.appendChild(row);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function moneyFmt(v) {
+  return "$" + v.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function generateProposalDocument() {
+  var totals = window._estimateTotals || {laborFinal:0, equipFinal:0, matFinal:0, otherFinal:0, grandTotal:0};
+
+  var client = document.getElementById("client").value || "Client Name";
+  var tankNum = document.getElementById("tank-num").value || "TK-XXX";
+  var tankDesc = document.getElementById("pp-tank-desc").value || "";
+  var ppNum = document.getElementById("pp-num").value || document.getElementById("est-num").value || "";
+  var ppDateRaw = document.getElementById("pp-date").value || document.getElementById("est-date").value;
+  var ppDate = ppDateRaw ? new Date(ppDateRaw + "T00:00:00").toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"}) : "";
+  var schedule = document.getElementById("pp-schedule").value || "";
+  var sup = document.getElementById("pp-crew-sup").value || "0";
+  var rep = document.getElementById("pp-crew-rep").value || "0";
+  var att = document.getElementById("pp-crew-att").value || "0";
+  var weld = document.getElementById("pp-crew-weld").value || "0";
+  var preparedBy = document.getElementById("pp-prepared-by").value || "";
+  var titleCell = document.getElementById("pp-title-cell").value || "";
+  var customScopeRaw = document.getElementById("pp-scope-custom").value || "";
+  var customScopeLines = customScopeRaw.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+
+  var crewParts = [];
+  if (+sup > 0) crewParts.push(sup + " Supervisor" + (+sup>1?"s":""));
+  if (+rep > 0) crewParts.push(rep + " Repairman" + (+rep>1?"s":""));
+  if (+att > 0) crewParts.push(att + " Attendant" + (+att>1?"s":""));
+  if (+weld > 0) crewParts.push(weld + " Welder" + (+weld>1?"s":""));
+  var crewMix = crewParts.join(" ");
+
+  // Build numbered scope list: standard checked items (not bold) first matching original ordering,
+  // but to match the sample's flow (standard items 1-7, then job-specific bolded, then closing 2 standard),
+  // we place: checked standard items that are NOT "final two" first, custom bolded items next, then final two standard items.
+  var closingItems = ["Perform final walk through with owner representative.", "Demobilize tank crew."];
+  var openingStandard = STANDARD_SCOPE_ITEMS.filter(function(i){ return i.checked && closingItems.indexOf(i.text) === -1; });
+  var closingStandard = STANDARD_SCOPE_ITEMS.filter(function(i){ return i.checked && closingItems.indexOf(i.text) !== -1; });
+
+  var scopeHtml = "";
+  var num = 1;
+  openingStandard.forEach(function(item){
+    scopeHtml += '<p style="margin:0 0 6px 0;font-size:11pt;">' + num + ". " + escapeHtml(item.text) + "</p>";
+    num++;
+  });
+  customScopeLines.forEach(function(line){
+    scopeHtml += '<p style="margin:0 0 6px 0;font-size:11pt;font-weight:bold;">' + num + ". " + escapeHtml(line) + "</p>";
+    num++;
+  });
+  closingStandard.forEach(function(item){
+    scopeHtml += '<p style="margin:0 0 6px 0;font-size:11pt;">' + num + ". " + escapeHtml(item.text) + "</p>";
+    num++;
+  });
+
+  var conditionsHtml = "";
+  var condNum = 1;
+  CONDITIONS_OF_SALE.filter(function(c){ return c.checked; }).forEach(function(c){
+    conditionsHtml += '<p style="margin:0 0 8px 0;font-size:10pt;">' + condNum + ". " + escapeHtml(c.text) + "</p>";
+    condNum++;
+  });
+
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+    + '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->'
+    + '<style>'
+    + 'body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#1a1a1a;margin:0;}'
+    + '.header-bar{border-bottom:2px solid #c8941a;padding-bottom:10px;margin-bottom:18px;}'
+    + '.company-name{color:#1a3a5c;font-size:20pt;font-weight:bold;letter-spacing:1px;}'
+    + '.company-sub{color:#7a8a99;font-size:9pt;letter-spacing:2px;}'
+    + '.divider{border-top:1px solid #333;margin:14px 0;}'
+    + 'table.bid{width:100%;border-collapse:collapse;margin:10px 0;}'
+    + 'table.bid td{padding:4px 0;font-size:11pt;}'
+    + '.total-row td{font-size:13pt;font-weight:bold;color:#c0392b;border-top:2px solid #333;padding-top:8px;}'
+    + '.section-title{font-weight:bold;font-size:11pt;margin:14px 0 4px 0;}'
+    + '</style></head><body>'
+    + '<div class="header-bar"><span class="company-name">BBB</span> <span class="company-sub">TANK SERVICES</span></div>'
+    + '<p style="text-align:right;font-size:11pt;">' + escapeHtml(ppDate) + '</p>'
+    + '<p style="font-weight:bold;font-size:11pt;margin-bottom:2px;">' + escapeHtml(client) + '</p>'
+    + '<p style="font-size:11pt;margin:10px 0 2px 0;">Reference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Proposal- Tank ' + escapeHtml(tankNum) + '</p>'
+    + (tankDesc ? '<p style="font-size:11pt;margin:0 0 2px 60px;">' + escapeHtml(tankDesc) + '</p>' : '')
+    + '<p style="font-size:11pt;margin:0 0 10px 60px;">BBB Tank Services: Proposal ' + escapeHtml(ppNum) + '</p>'
+    + '<div class="divider"></div>'
+    + '<p style="font-size:11pt;">As per your request for quotation, API-653 standards, we propose to furnish labor, equipment, and materials to complete scope as follows.</p>'
+    + '<p style="font-weight:bold;text-decoration:underline;font-size:11pt;margin:12px 0 8px 0;">Our Price Includes:</p>'
+    + scopeHtml
+    + '<div class="divider"></div>'
+    + '<p style="font-weight:bold;font-size:12pt;margin-bottom:8px;">BASE BID &ndash; LUMP SUM</p>'
+    + '<table class="bid"><tr><td style="width:70%;font-weight:bold;">Labor</td><td style="text-align:right;font-weight:bold;">' + moneyFmt(totals.laborFinal) + '</td></tr>'
+    + '<tr><td style="font-weight:bold;">Equipment</td><td style="text-align:right;font-weight:bold;">' + moneyFmt(totals.equipFinal) + '</td></tr>'
+    + '<tr><td style="font-weight:bold;">Material</td><td style="text-align:right;font-weight:bold;">' + moneyFmt(totals.matFinal + totals.otherFinal) + '</td></tr>'
+    + '<tr class="total-row"><td>Total</td><td style="text-align:right;">' + moneyFmt(totals.grandTotal) + '</td></tr></table>'
+    + '<div class="divider"></div>'
+    + '<table class="bid"><tr><td style="width:25%;font-weight:bold;">SCHEDULE</td><td><span style="font-weight:bold;">Base Bid Schedule</span>&nbsp;&nbsp;&nbsp;&nbsp;' + escapeHtml(schedule) + '</td></tr></table>'
+    + '<div class="divider"></div>'
+    + '<table class="bid"><tr><td style="width:25%;font-weight:bold;">Crew Mix</td><td>' + escapeHtml(crewMix) + '</td></tr></table>'
+    + '<div style="page-break-before:always;"></div>'
+    + '<p style="font-weight:bold;font-size:11pt;margin-bottom:10px;">Conditions of Sale:</p>'
+    + '<p style="font-style:italic;font-size:10pt;">*NO TAXES ARE INCLUDED IN THE ABOVE PRICING*</p>'
+    + '<p style="font-style:italic;font-size:10pt;margin-bottom:12px;">ALL MATERIAL PRICING SHOULD BE CONSIDERED PRICE IN EFFECT AND WILL NEED TO BE CONFIRMED PRIOR TO ACCEPTANCE OF ORDER.</p>'
+    + conditionsHtml
+    + '<p style="font-weight:bold;margin-top:14px;font-size:10pt;">Payment Terms:</p>'
+    + '<p style="margin:0 0 2px 24px;font-size:10pt;">10% PO issued</p>'
+    + '<p style="margin:0 0 2px 24px;font-size:10pt;">40% Materials Ordered.</p>'
+    + '<p style="margin:0 0 2px 24px;font-size:10pt;">20% Mobilization to job site</p>'
+    + '<p style="margin:0 0 12px 24px;font-size:10pt;">20% All documents received.</p>'
+    + '<p style="font-size:11pt;margin-top:16px;">Thank you for allowing BBB Tank Service to quote on your storage tank needs. Hopefully, we will be the successful bidder and will have the opportunity to work with you on this project. Please call if you have questions or concerns regarding this proposal.</p>'
+    + '<p style="font-size:11pt;margin-top:20px;">Sincerely,</p>'
+    + '<p style="font-style:italic;font-size:16pt;margin:18px 0 0 0;">' + escapeHtml(preparedBy) + '</p>'
+    + '<p style="font-size:10pt;font-weight:bold;margin:2px 0 0 0;">' + escapeHtml(titleCell) + '</p>'
+    + '<p style="font-size:10pt;font-weight:bold;margin:2px 0 0 0;">BBB Tank Services, LLC.</p>'
+    + '</body></html>';
+
+  var blob = new Blob(['\ufeff', html], {type: "application/msword"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  var filename = "BBB_Proposal_" + (ppNum || tankNum || "draft").replace(/[^a-zA-Z0-9_-]/g, "_") + ".doc";
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+buildScopeChecklist();
+buildConditionsChecklist();
+document.getElementById("gen-proposal-btn").addEventListener("click", generateProposalDocument);
+document.getElementById("pp-date").valueAsDate = new Date();
+
+</script>
+</body>
+</html>
