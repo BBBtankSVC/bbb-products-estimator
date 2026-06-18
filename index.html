@@ -58,6 +58,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .tbl .mono{font-family:'Roboto Mono',monospace;font-size:12px;text-align:right;padding-right:6px;white-space:nowrap}
 .tbl .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 5px;transition:color .15s;line-height:1}
 .tbl .del:hover{color:var(--red)}
+.del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 5px;transition:color .15s;line-height:1}
+.del:hover{color:var(--red)}
 .add-row{margin-top:10px;width:100%;background:none;border:1px dashed var(--border);border-radius:4px;color:var(--muted);font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;letter-spacing:.8px;padding:6px;cursor:pointer;transition:all .15s}
 .add-row:hover{border-color:var(--teal);color:var(--teal)}
 .summary{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:18px;position:sticky;top:80px}
@@ -120,10 +122,27 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
   </div>
   <div class="hbtns">
+    <button class="btn btn-ghost" onclick="openEstimateList()">Open Saved Estimate</button>
     <button class="btn btn-ghost" onclick="newEstimate()">New Estimate</button>
+    <button class="btn btn-ghost" id="save-btn" onclick="saveEstimate()">Save Estimate</button>
     <button class="btn btn-teal" onclick="window.print()">Print / PDF</button>
   </div>
 </header>
+
+<!-- SAVED ESTIMATES MODAL -->
+<div id="estimates-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;width:90%;max-width:700px;max-height:80vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;color:var(--teal);text-transform:uppercase;">Saved Estimates</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeEstimateList()">Close</button>
+    </div>
+    <div style="padding:16px 20px;overflow-y:auto;flex:1;">
+      <input id="estimates-search" placeholder="Search by client, tank #, or estimate #..." style="margin-bottom:12px;" oninput="renderEstimatesList()"/>
+      <div id="estimates-status" style="font-size:12px;color:var(--muted);margin-bottom:10px;"></div>
+      <div id="estimates-list"></div>
+    </div>
+  </div>
+</div>
 
 <div class="tabs">
   <div class="tab active" onclick="showTab('estimate')">Estimate</div>
@@ -445,6 +464,26 @@ Install Gaskets on All IFR Appurtenances"></textarea>
 
   </div>
 </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC8TtMyG4Y2aKkWzdm5Mv8Iw0p1hfFJz4M",
+    authDomain: "bbb-estimator-6a744.firebaseapp.com",
+    projectId: "bbb-estimator-6a744",
+    storageBucket: "bbb-estimator-6a744.firebasestorage.app",
+    messagingSenderId: "15757345811",
+    appId: "1:15757345811:web:581c11fcfa44f5f2d22be6"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+
+  // Expose to the non-module script below via window
+  window._fb = { db, collection, doc, setDoc, getDocs, deleteDoc, query, orderBy };
+</script>
 
 <script>
 // ══ DATA ══
@@ -1221,8 +1260,270 @@ function recalc() {
 }
 
 // ══ NEW ESTIMATE ══
+// ══════════════════════════════════════════════
+// CLOUD SAVE / LOAD (Firebase Firestore)
+// ══════════════════════════════════════════════
+
+var _currentDocId = null; // tracks which saved estimate (if any) we're editing
+
+function serializeEstimate() {
+  var laborRows = [];
+  document.querySelectorAll("#labor-body tr").forEach(function(tr){
+    var sel = tr.querySelector("select");
+    laborRows.push({
+      role: sel ? sel.value : "",
+      stDays: tr.querySelector(".st-days").value,
+      otDays: tr.querySelector(".ot-days").value,
+      workers: tr.querySelector(".workers").value,
+      stRate: tr.querySelector(".st-rate").value,
+      otRate: tr.querySelector(".ot-rate").value,
+      pdRate: tr.querySelector(".pd-rate").value
+    });
+  });
+
+  var matRows = [];
+  document.querySelectorAll("#mat-body tr").forEach(function(tr){
+    var inputs = tr.querySelectorAll("input");
+    var sel = tr.querySelector("select");
+    matRows.push({
+      desc: inputs[0] ? inputs[0].value : "",
+      qty: inputs[1] ? inputs[1].value : "",
+      unit: sel ? sel.value : "EA",
+      cost: inputs[2] ? inputs[2].value : ""
+    });
+  });
+
+  var equipRows = [];
+  document.querySelectorAll("#equip-body tr").forEach(function(tr){
+    equipRows.push({
+      item: tr.querySelector(".eq-sel").value,
+      qty: tr.querySelector(".eq-qty").value,
+      rate: tr.querySelector(".eq-rate").value,
+      period: tr.querySelector(".eq-period").value
+    });
+  });
+
+  var otherRows = [];
+  document.querySelectorAll("#other-body tr").forEach(function(tr){
+    var inputs = tr.querySelectorAll("input");
+    otherRows.push({
+      desc: inputs[0] ? inputs[0].value : "",
+      amt: inputs[1] ? inputs[1].value : ""
+    });
+  });
+
+  return {
+    estNum: document.getElementById("est-num").value,
+    estDate: document.getElementById("est-date").value,
+    propNum: document.getElementById("prop-num").value,
+    division: document.getElementById("division").value,
+    client: document.getElementById("client").value,
+    facility: document.getElementById("facility").value,
+    tankNum: document.getElementById("tank-num").value,
+    tankDia: document.getElementById("tank-dia").value,
+    tankHt: document.getElementById("tank-ht").value,
+    jobType: document.getElementById("job-type").value,
+    startDate: document.getElementById("start-date").value,
+    endDate: document.getElementById("end-date").value,
+    scope: document.getElementById("scope").value,
+    intNotes: document.getElementById("int-notes").value,
+    mileOneway: document.getElementById("mile-oneway").value,
+    mileEmp: document.getElementById("mile-emp").value,
+    mileRate: document.getElementById("mile-rate").value,
+    mkLabor: document.getElementById("mk-labor").value,
+    mkMat: document.getElementById("mk-mat").value,
+    mkEquip: document.getElementById("mk-equip").value,
+    mkOther: document.getElementById("mk-other").value,
+    laborRows: laborRows,
+    matRows: matRows,
+    equipRows: equipRows,
+    otherRows: otherRows,
+    savedAt: new Date().toISOString(),
+    totalPrice: document.getElementById("s-price").textContent
+  };
+}
+
+function loadEstimateData(data) {
+  document.getElementById("est-num").value = data.estNum || "";
+  document.getElementById("est-date").value = data.estDate || "";
+  document.getElementById("prop-num").value = data.propNum || "";
+  if (data.division) document.getElementById("division").value = data.division;
+  document.getElementById("client").value = data.client || "";
+  document.getElementById("facility").value = data.facility || "";
+  document.getElementById("tank-num").value = data.tankNum || "";
+  document.getElementById("tank-dia").value = data.tankDia || "";
+  document.getElementById("tank-ht").value = data.tankHt || "";
+  if (data.jobType) document.getElementById("job-type").value = data.jobType;
+  document.getElementById("start-date").value = data.startDate || "";
+  document.getElementById("end-date").value = data.endDate || "";
+  document.getElementById("scope").value = data.scope || "";
+  document.getElementById("int-notes").value = data.intNotes || "";
+  document.getElementById("mile-oneway").value = data.mileOneway || "";
+  document.getElementById("mile-emp").value = data.mileEmp || "";
+  document.getElementById("mile-rate").value = data.mileRate || "0.76";
+  document.getElementById("mk-labor").value = data.mkLabor || "25";
+  document.getElementById("mk-mat").value = data.mkMat || "25";
+  document.getElementById("mk-equip").value = data.mkEquip || "25";
+  document.getElementById("mk-other").value = data.mkOther || "43";
+  updateCircumference();
+
+  ["labor-body","mat-body","equip-body","other-body"].forEach(function(id){ document.getElementById(id).innerHTML = ""; });
+  lid = 0; mid = 0; eid = 0; oid = 0;
+
+  (data.laborRows || []).forEach(function(r){
+    addLabor(r.role);
+    var tr = document.querySelector("#labor-body tr:last-child");
+    tr.querySelector(".st-days").value = r.stDays;
+    tr.querySelector(".ot-days").value = r.otDays;
+    tr.querySelector(".workers").value = r.workers;
+    tr.querySelector(".st-rate").value = r.stRate;
+    tr.querySelector(".ot-rate").value = r.otRate;
+    tr.querySelector(".pd-rate").value = r.pdRate;
+  });
+
+  (data.matRows || []).forEach(function(r){
+    addMaterial(r.desc, +r.qty, r.unit, +r.cost);
+  });
+
+  (data.equipRows || []).forEach(function(r){
+    addEquip();
+    var tr = document.querySelector("#equip-body tr:last-child");
+    tr.querySelector(".eq-sel").value = r.item;
+    tr.querySelector(".eq-period").value = r.period;
+    tr.querySelector(".eq-rate").value = r.rate;
+  });
+
+  (data.otherRows || []).forEach(function(r){
+    addOther(r.desc, +r.amt);
+  });
+
+  recalc();
+}
+
+async function saveEstimate() {
+  if (!window._fb) { alert("Cloud connection not ready yet, try again in a moment."); return; }
+  var btn = document.getElementById("save-btn");
+  var originalText = btn.textContent;
+  btn.textContent = "Saving...";
+  btn.disabled = true;
+  try {
+    var data = serializeEstimate();
+    var fb = window._fb;
+    var idToUse = _currentDocId || (data.estNum ? data.estNum.replace(/[^a-zA-Z0-9_-]/g, "_") : "estimate_" + Date.now());
+    var ref = fb.doc(fb.collection(fb.db, "estimates"), idToUse);
+    await fb.setDoc(ref, data);
+    _currentDocId = idToUse;
+    btn.textContent = "Saved ✓";
+    setTimeout(function(){ btn.textContent = originalText; btn.disabled = false; }, 1500);
+  } catch (err) {
+    console.error(err);
+    alert("Save failed: " + err.message);
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
+var _allEstimates = [];
+
+async function openEstimateList() {
+  document.getElementById("estimates-modal-overlay").style.display = "flex";
+  document.getElementById("estimates-status").textContent = "Loading...";
+  document.getElementById("estimates-list").innerHTML = "";
+  if (!window._fb) { document.getElementById("estimates-status").textContent = "Cloud connection not ready yet."; return; }
+  try {
+    var fb = window._fb;
+    var q = fb.query(fb.collection(fb.db, "estimates"));
+    var snap = await fb.getDocs(q);
+    _allEstimates = [];
+    snap.forEach(function(docSnap){
+      _allEstimates.push({ id: docSnap.id, data: docSnap.data() });
+    });
+    _allEstimates.sort(function(a,b){
+      return (b.data.savedAt || "").localeCompare(a.data.savedAt || "");
+    });
+    document.getElementById("estimates-status").textContent = _allEstimates.length + " saved estimate" + (_allEstimates.length === 1 ? "" : "s");
+    renderEstimatesList();
+  } catch (err) {
+    console.error(err);
+    document.getElementById("estimates-status").textContent = "Failed to load: " + err.message;
+  }
+}
+
+function renderEstimatesList() {
+  var q = (document.getElementById("estimates-search").value || "").toLowerCase();
+  var filtered = _allEstimates.filter(function(e){
+    if (!q) return true;
+    var d = e.data;
+    return (d.client||"").toLowerCase().indexOf(q) >= 0
+      || (d.tankNum||"").toLowerCase().indexOf(q) >= 0
+      || (d.estNum||"").toLowerCase().indexOf(q) >= 0
+      || (d.facility||"").toLowerCase().indexOf(q) >= 0;
+  });
+  var list = document.getElementById("estimates-list");
+  list.innerHTML = "";
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:20px;text-align:center;">No estimates found.</div>';
+    return;
+  }
+  filtered.forEach(function(e){
+    var d = e.data;
+    var row = document.createElement("div");
+    row.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;";
+    row.addEventListener("mouseenter", function(){ row.style.borderColor = "var(--teal)"; });
+    row.addEventListener("mouseleave", function(){ row.style.borderColor = "var(--border)"; });
+
+    var left = document.createElement("div");
+    var dateStr = d.savedAt ? new Date(d.savedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}) : "";
+    left.innerHTML = '<div style="font-weight:600;font-size:13px;color:var(--text);">' +
+      (d.estNum || "(no number)") + " — " + (d.client || "No client") + '</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:3px;">' +
+      (d.tankNum ? ("Tank " + d.tankNum + " · ") : "") +
+      (d.facility || "") + (d.facility ? " · " : "") + dateStr + '</div>';
+
+    var right = document.createElement("div");
+    right.style.cssText = "display:flex;align-items:center;gap:10px;";
+    var priceSpan = document.createElement("span");
+    priceSpan.style.cssText = "font-family:'Roboto Mono',monospace;font-size:13px;color:var(--teal);font-weight:600;";
+    priceSpan.textContent = d.totalPrice || "$0.00";
+    var delBtnEl = document.createElement("button");
+    delBtnEl.className = "del";
+    delBtnEl.textContent = "×";
+    delBtnEl.style.fontSize = "18px";
+    delBtnEl.addEventListener("click", async function(ev){
+      ev.stopPropagation();
+      if (!confirm("Delete this saved estimate? This cannot be undone.")) return;
+      try {
+        var fb = window._fb;
+        await fb.deleteDoc(fb.doc(fb.collection(fb.db, "estimates"), e.id));
+        _allEstimates = _allEstimates.filter(function(x){ return x.id !== e.id; });
+        renderEstimatesList();
+      } catch (err) {
+        alert("Delete failed: " + err.message);
+      }
+    });
+
+    right.appendChild(priceSpan);
+    right.appendChild(delBtnEl);
+    row.appendChild(left);
+    row.appendChild(right);
+
+    row.addEventListener("click", function(){
+      loadEstimateData(d);
+      _currentDocId = e.id;
+      closeEstimateList();
+    });
+
+    list.appendChild(row);
+  });
+}
+
+function closeEstimateList() {
+  document.getElementById("estimates-modal-overlay").style.display = "none";
+}
+
 function newEstimate() {
   if (!confirm("Clear all data and start a new estimate?")) return;
+  _currentDocId = null;
   ["est-num","client","facility","tank-num","tank-dia","tank-ht","tank-circ","scope","int-notes","prop-num","start-date","end-date","mile-oneway","mile-rt","mile-emp"]
     .forEach(function(id){ var e = document.getElementById(id); if (e) e.value = ""; });
   document.getElementById("est-date").valueAsDate = new Date();
